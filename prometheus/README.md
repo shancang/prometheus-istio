@@ -5,7 +5,11 @@
 ## TL;DR;
 
 ```console
-$ helm install stable/prometheus
+$  helm install  prometheus \
+--set nodeExporter.enabled=false \
+--set pushgateway.enabled=false \
+--name istio-prometheus \
+--namespace istio-system
 ```
 
 ## Introduction

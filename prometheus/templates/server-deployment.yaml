@@ -114,6 +114,8 @@ spec:
           resources:
 {{ toYaml .Values.server.resources | indent 12 }}
           volumeMounts:
+            - name: istio-certs
+              mountPath: /etc/istio-certs
             - name: config-volume
               mountPath: /etc/config
             - name: storage-volume

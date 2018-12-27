@@ -1,0 +1,39 @@
+serverFiles:
+  alerts:
+    groups:
+    - name: k8s_alert_rules
+      rules:
+      # ALERT when container memory usage exceed 90%
+      - alert: 容器内存使用超过90%
+        expr:  sum by(container_name,namespace) ((container_memory_working_set_bytes{image!="",name=~"^k8s_.*",pod_name!=""})/(container_spec_memory_limit_bytes{image!="",name=~"^k8s_.*",pod_name!=""})> 0.9 and  (container_memory_working_set_bytes{image!="",name=~"^k8s_.*",pod_name!=""}) /  (container_spec_memory_limit_bytes{image!="",name=~"^k8s_.*",pod_name!=""})< 2)
+        for: 2m
+        annotations:
+          summary: "{{ $labels.container_name }}'s memory usage alert"
+          description: "Memory Usage of Pod {{ $labels.container_name }} on {{ $labels.kubernetes_io_hostname }} has exceeded 90% for more than 2 minutes."
+
+      # ALERT when node is down
+      - alert: node_down
+        expr: up == 0
+        for: 60s
+        annotations:
+          summary: "Node {{ $labels.kubernetes_io_hostname }} is down"
+          description: "Node {{ $labels.kubernetes_io_hostname }} is down"
+  
+      - alert: 节点内存不足20%
+        expr: sum (101 -( (node_memory_MemTotal{instance !="" } - node_memory_MemFree{instance !=""} - node_memory_Buffers{instance !=""} - node_memory_Cached{instance !=""} ) / (node_memory_MemTotal{instance !=""}) * 100) ) by(instance) < 20
+        for: 1m
+        annotations:
+          summary: "节点{{ $labels.kubernetes_io_hostname }} 内存不足20%"
+          description: "节点{{ $labels.kubernetes_io_hostname }} 内存不足20%"
+      - alert: 节点cpu使用超过80%
+        expr: 100 - avg( irate(node_cpu{mode="idle", instance!=""}[2m]))  by(instance) * 100  > 80
+        for: 2m
+        annotations:
+          summary: "节点cpu使用超过80%告警"
+          description: "节点cpu使用超过80%"
+      - alert: 服务启动失败
+        expr:  sum by(namespace ,container,instance) (kube_pod_container_status_waiting{namespace != "cattle-system",namespace != "cattle-logging",namespace != "istio-system"})  != 0 
+        for: 1m
+        annotations:
+          summary: "服务{{ $labels.container }}启动失败"
+          description: "服务启动失败"

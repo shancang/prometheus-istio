@@ -668,7 +668,7 @@ server:
 
   ## Prometheus data retention period (i.e 360h)
   ##
-  retention: ""
+  retention: "24h"
 
 pushgateway:
   ## If false, pushgateway will not be installed
@@ -1091,6 +1091,27 @@ serverFiles:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: pod_name
+
+      # spring boot
+      - job_name: 'spring-boot'
+        metrics_path: /actuator/prometheus
+        kubernetes_sd_configs:
+        - role: pod
+  
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: 'spring-port'
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod_name
+
+
   
         metric_relabel_configs:
         # Exclude some of the envoy metrics that have massive cardinality

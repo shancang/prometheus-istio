@@ -10,6 +10,17 @@ $  helm install  prometheus \
 --set pushgateway.enabled=false \
 --name istio-prometheus \
 --namespace istio-system
+
+helm upgrade  istio-prometheus \
+--set nodeExporter.enabled=false \
+--set pushgateway.enabled=false  \
+--set server.persistentVolume.enabled=true \
+--set server.persistentVolume.storageClass="gluster-class" \
+--set alertmanager.persistentVolume.storageClass="gluster-class"  \
+-f prom-alertsmanager.yaml \
+-f prom-alertrules.yaml   \
+prometheus/
+
 ```
 
 ## Introduction

@@ -1092,27 +1092,6 @@ serverFiles:
           action: replace
           target_label: pod_name
 
-      # spring boot
-      - job_name: 'spring-boot'
-        metrics_path: /actuator/prometheus
-        kubernetes_sd_configs:
-        - role: pod
-  
-        relabel_configs:
-        - source_labels: [__meta_kubernetes_pod_container_port_name]
-          action: keep
-          regex: 'spring-port'
-        - action: labelmap
-          regex: __meta_kubernetes_pod_label_(.+)
-        - source_labels: [__meta_kubernetes_namespace]
-          action: replace
-          target_label: namespace
-        - source_labels: [__meta_kubernetes_pod_name]
-          action: replace
-          target_label: pod_name
-
-
-  
         metric_relabel_configs:
         # Exclude some of the envoy metrics that have massive cardinality
         # This list may need to be pruned further moving forward, as informed
@@ -1144,6 +1123,25 @@ serverFiles:
         - source_labels: [ __name__ ]
           regex: 'envoy_cluster_(lb|retry|bind|internal|max|original).*'
           action: drop
+
+    # spring boot
+      - job_name: 'spring-boot'
+        metrics_path: /actuator/prometheus
+        kubernetes_sd_configs:
+        - role: pod
+  
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: 'spring-port'
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod_name
   
       - job_name: 'istio-policy'
         # Override the global default and scrape targets from this job every 5 seconds.

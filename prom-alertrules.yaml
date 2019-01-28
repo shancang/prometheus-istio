@@ -37,3 +37,10 @@ serverFiles:
         annotations:
           summary: "服务{{ $labels.container }}启动失败"
           description: "服务启动失败"
+
+      - alert: 磁盘使用超过75%
+        expr:  ( ( sum by(instance,device) (node_filesystem_size{device=~"/dev/v.*"} )  - sum by(instance,device) (node_filesystem_free{device=~"/dev/v.*"} )  ) /  sum by(instance,device) (node_filesystem_size{device=~"/dev/v.*"} ) ) > 0.75
+        for: 5m
+        annotations:
+          summary: "{{ $labels.instance }}磁盘使用超过75"
+          description: "磁盘使用超过75%"

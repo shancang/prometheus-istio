@@ -1131,11 +1131,10 @@ serverFiles:
         - role: pod
   
         relabel_configs:
-        - source_labels: [__meta_kubernetes_pod_container_port_name]
+        - source_labels: [__meta_kubernetes_pod_container_name]
           action: keep
-          regex: 'spring-port'
-        - action: labelmap
-          regex: __meta_kubernetes_pod_label_(.+)
+          regex: '^...-app'
+
         - source_labels: [__meta_kubernetes_namespace]
           action: replace
           target_label: namespace
@@ -1145,9 +1144,10 @@ serverFiles:
         - source_labels: [__meta_kubernetes_pod_container_name]
           action: replace
           target_label: container_name 
-        - source_labels: [__meta_kubernetes_pod_phase]
+        - source_labels: [__meta_kubernetes_pod_ready]
           action: replace
           target_label: pod_status
+
       - job_name: 'istio-policy'
         # Override the global default and scrape targets from this job every 5 seconds.
         scrape_interval: 5s
